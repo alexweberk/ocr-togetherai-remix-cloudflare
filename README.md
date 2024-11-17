@@ -1,47 +1,29 @@
-# Welcome to Remix + Cloudflare!
+# OCR with Llama through Together AI with Remix / Cloudflare Pages
 
-- 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
+## Summary
 
-## Development
+This is a quick demo of running OCR with Llama through Together AI with Remix / Cloudflare Pages.
 
-Run the dev server:
+Heavily inspired by:
 
-```sh
-npm run dev
-```
+- https://llamaocr.com/
+- https://github.com/Nutlope/llama-ocr/blob/main/src/index.ts
 
-To run Wrangler:
+A few changes that I made:
 
-```sh
-npm run build
-npm run start
-```
+- I wanted to run the `ocr()` function on the server side on Cloudflare Pages; had trouble implementing that, so I modified the code to take in an arrayBuffer of the image instead.
 
-## Typegen
+Other additions:
 
-Generate types for your Cloudflare bindings in `wrangler.toml`:
+- Remix / Cloudflare Pages implementation with preview of the uploaded image
+- Some error handling...
+- Implementation of simple rate limiting with KV Cache, based on the IP address (probably not always accurate).
 
-```sh
-npm run typegen
-```
+## How to use
 
-You will need to rerun typegen whenever you make changes to `wrangler.toml`.
+1. Clone this repo
+2. `npm install`
+3. `npm run dev`
 
-## Deployment
-
-First, build your app for production:
-
-```sh
-npm run build
-```
-
-Then, deploy your app to Cloudflare Pages:
-
-```sh
-npm run deploy
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+To deploy to Cloudflare Pages, run `npm run deploy`. You probably will have to configure a few things in your dashboard.
+You definitely need to set the `TOGETHER_API_KEY` and `RATE_LIMITS` KV Cache in your dashboard via "Settings".
