@@ -14,7 +14,7 @@ import {
 import { useState } from "react";
 import Spinner from "~/components/Spinner";
 import { ocr } from "~/lib/ocr";
-import { decrementAttempts, getRemainingAttempts } from "~/lib/utils";
+import { getRemainingAttempts, incrementAttemptCounter } from "~/lib/utils";
 
 export const meta: MetaFunction = () => {
   return [
@@ -53,8 +53,6 @@ export async function action({ request, context }: ActionFunctionArgs) {
     );
   }
 
-  await decrementAttempts(RATE_LIMITS, ip);
-
   const formData = await request.formData();
   const file = formData.get("image");
 
@@ -83,6 +81,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
       arrayBuffer,
       apiKey: TOGETHER_API_KEY,
     });
+
+    // Increment the attempts counter if successful. Remaining attempts are
+    // reset automatically after 24 hours.
+    await incrementAttemptCounter(RATE_LIMITS, ip);
 
     return json({ markdown });
   } catch (error) {
@@ -153,27 +155,38 @@ export default function Index() {
             )}
             <button
               type="submit"
-              className="rounded bg-violet-500 px-4 py-2 text-white hover:bg-violet-600 disabled:opacity-50"
+              className="rounded bg-violet-500 px-8 py-2 text-white hover:bg-violet-600 disabled:opacity-50 max-w-fit mx-auto"
               disabled={navigation.state !== "idle" || remainingAttempts <= 0}
             >
               {navigation.state !== "idle"
                 ? "Uploading..."
                 : remainingAttempts <= 0
                 ? "Daily limit reached"
-                : "Upload"}
+                : "Convert to Markdown"}
             </button>
             <span className="text-sm text-gray-600 text-center italic">
               Remaining attempts today: {remainingAttempts}
             </span>
           </Form>
           {actionData?.error && (
-            <p className="text-red-500">{actionData.error}</p>
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-500">{actionData.error}</p>
+            </div>
           )}
         </div>
         <div id="outputSection">
           <h2 className="text-2xl font-bold">Output</h2>
           {navigation.state !== "idle" ? (
-            <Spinner />
+            <>
+              <Spinner />
+              <div className="flex flex-col items-center">
+                <span className="text-sm text-gray-600 text-center italic">
+                  Converting to Markdown.
+                  <br /> This can take about a minute or more on my extremely
+                  cheapo free plan. 💸
+                </span>
+              </div>
+            </>
           ) : (
             <pre className="mt-4 whitespace-pre-wrap rounded-lg bg-gray-100 p-4">
               {actionData?.markdown

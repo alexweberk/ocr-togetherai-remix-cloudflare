@@ -8,7 +8,7 @@ export async function getRemainingAttempts(
   return attempts ? 3 - parseInt(attempts) : 3;
 }
 
-export async function decrementAttempts(
+export async function incrementAttemptCounter(
   kv: KVNamespace,
   ip: string
 ): Promise<void> {
@@ -18,6 +18,19 @@ export async function decrementAttempts(
 
   // Set with expiration (24 hours)
   await kv.put(key, (currentAttempts + 1).toString(), {
+    expirationTtl: 86400, // 24 hours in seconds
+  });
+}
+
+export async function decrementAttemptCounter(
+  kv: KVNamespace,
+  ip: string
+): Promise<void> {
+  // for debugging purposes
+  const key = `rate_limit:${ip}:${getCurrentDate()}`;
+  const attempts = await kv.get(key);
+  const currentAttempts = attempts ? parseInt(attempts) : 0;
+  await kv.put(key, (currentAttempts - 1).toString(), {
     expirationTtl: 86400, // 24 hours in seconds
   });
 }
