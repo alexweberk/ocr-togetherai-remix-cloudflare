@@ -72,7 +72,7 @@ async function getMarkDown({
 
   Requirements:
 
-  - Output Only Markdown: Return solely the Markdown content without any additional explanations or comments.
+  - Output Only Markdown: Return solely the Markdown content without any additional explanations or comments. ONLY MARKDOWN.
   - No Delimiters: Do not use code fences or delimiters like \`\`\`markdown.
   - Complete Content: Do not omit any part of the page, including headers, footers, and subtext.
   `;
